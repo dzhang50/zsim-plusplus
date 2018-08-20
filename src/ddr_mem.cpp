@@ -665,7 +665,23 @@ void DDRMemory::initTech(const char* techName) {
     // tBL's below are for 64-byte lines; we adjust as needed
 
     // Please keep this orderly; go from faster to slower technologies
-    if (tech == "DDR3-1333-CL10") {
+    if (tech == "DDR4-2400-CL17") {
+        // From https://github.com/uart/gem5-mirror/blob/master/src/mem/DRAMCtrl.py
+        tCK = 0.833;
+        tBL = 4;
+        tCL = 17;
+        tRCD = 17;
+        tRTP = 9;
+        tRP = 17;
+        tRRD = 4;
+        tRAS = 38;
+        tFAW = 28;
+        tWTR = 6;
+        tWR = 18;
+        tRFC = 260;
+        tREFI = 7800;
+    }
+    else if (tech == "DDR3-1333-CL10") {
         // from DRAMSim2/ini/DDR3_micron_16M_8B_x4_sg15.ini (Micron)
         tCK = 1.5;  // ns; all other in mem cycles
         tBL = 4;
