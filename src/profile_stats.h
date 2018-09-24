@@ -29,6 +29,7 @@
 /* Stats used to profile the simulator */
 
 #include <time.h>
+#include <string>
 #include "stats.h"
 
 //Helper function
@@ -58,13 +59,17 @@ class ClockStat : public ScalarStat {
         void end() {
             assert(startNs);
             uint64_t endNs = getNs();
-            assert(endNs >= startNs)
+            assert(endNs >= startNs);
             totalNs += (endNs - startNs);
             startNs = 0;
         }
 
         uint64_t get() const {
             return totalNs + (startNs? (getNs() - startNs) : 0);
+        }
+
+        std::string getS() const {
+            return std::to_string(get());
         }
 };
 

@@ -46,7 +46,7 @@ class TextBackendImpl : public GlobAlloc {
                     dumpStat(as->get(i), level+1, out);
                 }
             } else if (ScalarStat* ss = dynamic_cast<ScalarStat*>(s)) {
-                *out << ss->get() << " # " << ss->desc() << endl;
+                *out << ss->getS() << " # " << ss->desc() << endl;
             } else if (VectorStat* vs = dynamic_cast<VectorStat*>(s)) {
                 *out << "# " << vs->desc() << endl;
                 for (uint32_t i = 0; i < vs->size(); i++) {

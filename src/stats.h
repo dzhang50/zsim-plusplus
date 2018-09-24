@@ -186,6 +186,7 @@ class ScalarStat : public Stat {
         }
 
         virtual uint64_t get() const = 0;
+        virtual std::string getS() const = 0;
 };
 
 class VectorStat : public Stat {
@@ -242,6 +243,10 @@ class Counter : public ScalarStat {
 
         uint64_t get() const {
             return _count;
+        }
+
+        std::string getS() const {
+            return std::to_string(_count);
         }
 
         inline void set(uint64_t data) {
@@ -319,6 +324,10 @@ class ProxyStat : public ScalarStat {
             assert(_statPtr);  // TODO: we may want to make this work only with volatiles...
             return *_statPtr;
         }
+
+        std::string getS() const {
+            return std::to_string(get());
+        }
 };
 
 
@@ -337,6 +346,10 @@ class ProxyFuncStat : public ScalarStat {
         uint64_t get() const {
             assert(_func);
             return _func();
+        }
+
+        std::string getS() const {
+            return std::to_string(get());
         }
 };
 
@@ -357,6 +370,10 @@ class LambdaStat : public ScalarStat {
     public:
         explicit LambdaStat(F _f) : f(_f) {} //copy the lambda
         uint64_t get() const {return f();}
+        std::string getS() const { return std::to_string(f()); }
+        auto getF() -> decltype(f) const {
+            return f();
+        }
 };
 
 template<typename F>
