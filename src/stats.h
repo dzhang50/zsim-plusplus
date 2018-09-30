@@ -371,9 +371,6 @@ class LambdaStat : public ScalarStat {
         explicit LambdaStat(F _f) : f(_f) {} //copy the lambda
         uint64_t get() const {return f();}
         std::string getS() const { return std::to_string(f()); }
-        auto getF() -> decltype(f) const {
-            return f();
-        }
 };
 
 template<typename F>

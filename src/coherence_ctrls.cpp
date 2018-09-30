@@ -44,11 +44,11 @@ uint32_t MESIBottomCC::getParentId(Address lineAddr) {
 
 
 void MESIBottomCC::init(const g_vector<MemObject*>& _parents, Network* network, const char* name) {
+    this->name = name;
+    this->network = network;
     parents.resize(_parents.size());
-    parentRTTs.resize(_parents.size());
     for (uint32_t p = 0; p < parents.size(); p++) {
         parents[p] = _parents[p];
-        parentRTTs[p] = (network)? network->getRTT(name, parents[p]->getName()) : 0;
     }
 }
 
@@ -106,7 +106,7 @@ uint64_t MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessTy
                 uint32_t parentId = getParentId(lineAddr);
                 MemReq req = {lineAddr, GETS, selfId, state, cycle, &ccLock, *state, srcId, flags};
                 uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
-                uint32_t netLat = parentRTTs[parentId];
+                uint32_t netLat = (network)? network->getRTT(cycle, nextLevelLat, name.c_str(), parents[parentId]->getName()) : 0;
                 profGETNextLevelLat.inc(nextLevelLat);
                 profGETNetLat.inc(netLat);
                 respCycle += nextLevelLat + netLat;
@@ -124,7 +124,7 @@ uint64_t MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessTy
                 uint32_t parentId = getParentId(lineAddr);
                 MemReq req = {lineAddr, GETX, selfId, state, cycle, &ccLock, *state, srcId, flags};
                 uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
-                uint32_t netLat = parentRTTs[parentId];
+                uint32_t netLat = (network)? network->getRTT(cycle, nextLevelLat, name.c_str(), parents[parentId]->getName()) : 0;
                 profGETNextLevelLat.inc(nextLevelLat);
                 profGETNetLat.inc(netLat);
                 respCycle += nextLevelLat + netLat;
@@ -202,11 +202,11 @@ void MESITopCC::init(const g_vector<BaseCache*>& _children, Network* network, co
     if (_children.size() > MAX_CACHE_CHILDREN) {
         panic("[%s] Children size (%d) > MAX_CACHE_CHILDREN (%d)", name, (uint32_t)_children.size(), MAX_CACHE_CHILDREN);
     }
+    this->name = name;
+    this->network = network;
     children.resize(_children.size());
-    childrenRTTs.resize(_children.size());
     for (uint32_t c = 0; c < children.size(); c++) {
         children[c] = _children[c];
-        childrenRTTs[c] = (network)? network->getRTT(name, children[c]->getName()) : 0;
     }
 }
 
@@ -227,7 +227,8 @@ uint64_t MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType t
             if (e->sharers[c]) {
                 InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
                 uint64_t respCycle = children[c]->invalidate(req);
-                respCycle += childrenRTTs[c];
+                int32_t latency = MAX((int64_t)respCycle - (int64_t)cycle, 0);
+                respCycle += (network)? network->getRTT(cycle, latency, name.c_str(), children[c]->getName()) : 0;
                 maxCycle = MAX(respCycle, maxCycle);
                 if (type == INV) e->sharers[c] = false;
                 sentInvs++;

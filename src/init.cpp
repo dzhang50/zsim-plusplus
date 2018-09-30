@@ -51,6 +51,8 @@
 #include "log.h"
 #include "mem_ctrls.h"
 #include "network.h"
+#include "fixed_delay_network.h"
+#include "mesh_network_md1.h"
 #include "null_core.h"
 #include "ooo_core.h"
 #include "part_repl_policies.h"
@@ -434,8 +436,20 @@ static void InitSystem(Config& config) {
     };
 
     // If a network file is specified, build a Network
+    string networkType = config.get<const char*>("sys.networkType", "");
     string networkFile = config.get<const char*>("sys.networkFile", "");
-    Network* network = (networkFile != "")? new Network(networkFile.c_str()) : nullptr;
+    Network* network = nullptr;
+
+    if(networkType == "fixedDelay") {
+        network = new FixedDelayNetwork(networkFile.c_str());
+    }
+    else if(networkType == "mesh") {
+        network = new MeshNetworkMD1(networkFile.c_str());
+        network->initStats(zinfo->rootStat);
+    }
+
+    //string networkFile = config.get<const char*>("sys.networkFile", "");
+    //Network* network = (networkFile != "")? new Network(networkFile.c_str()) : nullptr;
 
     // Build the caches
     vector<const char*> cacheGroupNames;

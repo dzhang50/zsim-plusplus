@@ -23,16 +23,28 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NETWORK_H_
-#define NETWORK_H_
+#ifndef FIXED_DELAY_NETWORK_H_
+#define FIXED_DELAY_NETWORK_H_
 
-#include "stats.h"
+/* Very simple fixed-delay network model. Parses a list of delays between
+ * entities, then accepts queries for roundtrip times between these entities.
+ * There is no contention modeling or even support for serialization latency.
+ * This is a basic model that should be extended as appropriate.
+ */
 
-class Network {
+#include <string>
+#include <unordered_map>
+#include "network.h"
+
+class FixedDelayNetwork : public Network {
+    private:
+        std::unordered_map<std::string, uint32_t> delayMap;
+
     public:
-        virtual uint32_t getRTT(uint64_t curCycle, uint32_t latency, const char* src, const char* dst) = 0;
-        virtual void initStats(AggregateStat*) = 0;
+        FixedDelayNetwork(const char* filename);
+        virtual uint32_t getRTT(uint64_t curCycle, uint32_t latency, const char* src, const char* dst);
+        virtual void initStats(AggregateStat*){};
 };
 
-#endif  // NETWORK_H_
+#endif  // FIXED_DELAY_NETWORK_H_
 

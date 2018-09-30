@@ -23,15 +23,15 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "network.h"
 #include <fstream>
 #include <string>
 #include "log.h"
+#include "fixed_delay_network.h"
 
 using std::ifstream;
 using std::string;
 
-Network::Network(const char* filename) {
+FixedDelayNetwork::FixedDelayNetwork(const char* filename) {
     ifstream inFile(filename);
 
     if (!inFile) {
@@ -62,7 +62,7 @@ Network::Network(const char* filename) {
     inFile.close();
 }
 
-uint32_t Network::getRTT(const char* src, const char* dst) {
+uint32_t FixedDelayNetwork::getRTT(uint64_t curCycle, uint32_t latency, const char* src, const char* dst) {
     string key(src);
     key += " ";
     key += dst;

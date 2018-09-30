@@ -27,6 +27,7 @@
 #define COHERENCE_CTRLS_H_
 
 #include <bitset>
+#include <string>
 #include "constants.h"
 #include "g_std/g_string.h"
 #include "g_std/g_vector.h"
@@ -34,6 +35,7 @@
 #include "memory_hierarchy.h"
 #include "pad.h"
 #include "stats.h"
+#include "network.h"
 
 //TODO: Now that we have a pure CC interface, the MESI controllers should go on different files.
 
@@ -82,9 +84,10 @@ class MESIBottomCC : public GlobAlloc {
     private:
         MESIState* array;
         g_vector<MemObject*> parents;
-        g_vector<uint32_t> parentRTTs;
         uint32_t numLines;
         uint32_t selfId;
+        std::string name;
+        Network* network;
 
         //Profiling counters
         Counter profGETSHit, profGETSMiss, profGETXHit, profGETXMissIM /*from invalid*/, profGETXMissSM /*from S, i.e. upgrade misses*/;
@@ -199,8 +202,9 @@ class MESITopCC : public GlobAlloc {
 
         Entry* array;
         g_vector<BaseCache*> children;
-        g_vector<uint32_t> childrenRTTs;
         uint32_t numLines;
+        std::string name;
+        Network* network;
 
         bool nonInclusiveHack;
 
